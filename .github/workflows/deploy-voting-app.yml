@@ -8,25 +8,25 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner with Node.js 20
 
     steps:
       # Step 1: Checkout the repository code
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4  # Update to actions/checkout@v4 for Node.js 20
         with:
           # Ensures the repository's full history is checked out
           fetch-depth: 0
 
       # Step 2: Log in to Azure using the service principal credentials stored in GitHub secrets
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@v2  # Update to azure/login@v2 for Node.js 20
         with:
           creds: ${{ secrets.AZURE_CRED }}
 
       # Step 3: Set up kubectl to interact with the Kubernetes cluster
       - name: Setup kubectl
-        uses: azure/setup-kubectl@v1
+        uses: azure/setup-kubectl@v2  # Update to azure/setup-kubectl@v2 for Node.js 20
         with:
           version: 'latest'
 
@@ -38,7 +38,6 @@ jobs:
       - name: List AKS Nodes
         run: kubectl get nodes
 
-      # # Step 6: Deploy the resources defined in the Kubernetes manifest files
-      # - name: Deploy Resources from AKS
-      #   run: kubectl apply -f k8s-specifications/
-      
+      # Step 6: Deploy the resources defined in the Kubernetes manifest files
+      - name: Deploy Resources to AKS
+        run: kubectl apply -f k8s-specifications/
