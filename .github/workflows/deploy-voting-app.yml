@@ -14,18 +14,11 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up Azure CLI
-        uses: azure/CLI@v1
+        uses: azure/login@v1
         with:
-          azcliversion: latest
-
-      - name: Login via Azure CLI
-        env:
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CRED }}
-        run: echo "${AZURE_CREDENTIALS}" > azure_credentials.json
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Azure CLI script example
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az login --service-principal --username $(jq -r .clientId < azure_credentials.json) --password $(jq -r .clientSecret < azure_credentials.json) --tenant $(jq -r .tenantId < azure_credentials.json)
-            az storage account show --name <storage_account_name> --resource-group <resource_group_name> --output table
+        run: |
+          az account show
+          az storage account show --name <storage_account_name> --resource-group <resource_group_name> --output table
