@@ -40,4 +40,4 @@ jobs:
 
       # Step 6: Deploy the resources defined in the Kubernetes manifest files
       - name: Deploy Resources to AKS
-        run: kubectl apply -f k8s-specifications/
+        run: kubectl delete -f k8s-specifications/
