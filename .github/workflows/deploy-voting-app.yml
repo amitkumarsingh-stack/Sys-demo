@@ -1,4 +1,4 @@
-name: Azure Multi-Job Pipeline
+name: Azure Example Workflow
 
 # This workflow triggers on every push to the main branch
 on:
@@ -15,7 +15,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Ensures the repository's full history is checked out
+          fetch-depth: 0  
 
       # Step 2: Log in to Azure using the service principal credentials stored in GitHub secrets
       - name: Azure Login
@@ -37,43 +37,11 @@ jobs:
       - name: List AKS Nodes
         run: kubectl get nodes
 
-      # Step 6: Deploy the resources defined in the Kubernetes manifest files
-      - name: Deploy Resources to AKS
-        run: kubectl delete -f k8s-specifications/
+      # # Step 6: Deploy the resources defined in the Kubernetes manifest files
+      # - name: Deploy Resources to AKS
+      #   run: kubectl apply -f k8s-specifications/
 
-  promote-to-prod:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner with Node.js 20
-
-    needs: build-and-deploy  # Wait for the 'build-and-deploy' job to complete successfully
-
-    steps:
-      # Step 1: Checkout the repository code (optional if already checked out)
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Ensures the repository's full history is checked out
-
-      # Step 2: Log in to Azure using the service principal credentials stored in GitHub secrets (if needed)
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CRED }}
-
-      # Step 3: Set up kubectl to interact with the Kubernetes cluster (if needed)
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v1
-        with:
-          version: 'latest'
-
-      # Step 4: Retrieve AKS credentials to configure kubectl (if needed)
-      - name: Retrieve AKS Credentials
-        run: az aks get-credentials --resource-group Sysdig-RG --name sysdig-demo
-
-      # Step 5: List the nodes in the AKS cluster to verify the connection (if needed)
-      - name: List AKS Nodes
-        run: kubectl get nodes
-
-      # Step 6: Promote to production or perform additional steps
+      # Step 7: Promote to production or perform additional steps
       - name: Promote to Production
         run: |
           # Example: Switch traffic or perform post-deployment tasks
