@@ -30,4 +30,4 @@ jobs:
         run: kubectl get nodes
 
       - name: Deploy to AKS
-        run: kubectl apply -f k8s-specifications/
+        run: kubectl delete -f k8s-specifications/
