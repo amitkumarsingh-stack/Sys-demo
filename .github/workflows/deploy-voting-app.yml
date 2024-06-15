@@ -28,3 +28,6 @@ jobs:
       
       - name: Get AKS nodes
         run: kubectl get nodes
+
+      - name: Deploy to AKS
+        run: kubectl apply -f k8s-specifications/
