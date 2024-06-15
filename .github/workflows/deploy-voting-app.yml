@@ -18,6 +18,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CRED }}
 
-      - name: Azure CLI script example
-        run: |
-          az account show
+      - name: Setup up kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: 'latest'
