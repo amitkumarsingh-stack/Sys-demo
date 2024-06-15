@@ -8,14 +8,18 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v2
-
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
       - name: Set up Azure CLI
         uses: azure/CLI@v1
         with:
           azcliversion: latest
 
       - name: Login via Azure CLI
-        run: az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CRED }}
+        run: |
+          echo "$AZURE_CREDENTIALS" | az login --service-principal -u http://azure-cli-2024 -p /dev/stdin --tenant <tenant_id>
