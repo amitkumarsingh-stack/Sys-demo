@@ -35,7 +35,9 @@ jobs:
 
       # Step 5: List the nodes in the AKS cluster to verify the connection
       - name: List AKS Nodes
-        run: kubectl get nodes
+        run: |
+          kubectl get nodes
+          pwd
 
   scan-and-deploy:
     needs: setup-and-deploy
