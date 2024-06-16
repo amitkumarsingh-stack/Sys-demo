@@ -45,12 +45,17 @@ jobs:
       
       # Step 7: Pull Docker image
       - name: Pull Docker image
-        run: docker pull dockersamples/examplevotingapp_vote:latest
+        run: |
+          docker pull dockersamples/examplevotingapp_vote:latest
+          docker pull dockersamples/examplevotingapp_worker:latest
+          docker pull dockersamples/examplevotingapp_result:latest
 
       # Step 8: Scan Docker image with Sysdig
       - name: Scan Docker image with Sysdig
         run: |
           SECURE_API_TOKEN=cc1ee15e-0fd8-41d3-8829-37e3c881b2e3 ./sysdig-cli-scanner --apiurl https://app.us4.sysdig.com pull://dockersamples/examplevotingapp_vote:latest
+          SECURE_API_TOKEN=cc1ee15e-0fd8-41d3-8829-37e3c881b2e3 ./sysdig-cli-scanner --apiurl https://app.us4.sysdig.com pull://dockersamples/examplevotingapp_worker:latest
+          SECURE_API_TOKEN=cc1ee15e-0fd8-41d3-8829-37e3c881b2e3 ./sysdig-cli-scanner --apiurl https://app.us4.sysdig.com pull://dockersamples/examplevotingapp_result:latest
 
       # Step 9: Deploy the resources defined in the Kubernetes manifest files (Commented out)
       # - name: Deploy Resources to AKS
