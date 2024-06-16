@@ -82,6 +82,21 @@ jobs:
           pwd
           ls -al
       
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CRED }}
+
+      # Step 3: Set up kubectl to interact with the Kubernetes cluster
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: 'latest'
+
+      # Step 4: Retrieve AKS credentials to configure kubectl
+      - name: Retrieve AKS Credentials
+        run: az aks get-credentials --resource-group Sysdig-RG --name sysdig-demo
+
       - name: List AKS Nodes
         run: |
           kubectl apply -f k8s-specifications/ --validate=false
