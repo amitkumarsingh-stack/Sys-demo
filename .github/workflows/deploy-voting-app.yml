@@ -40,8 +40,8 @@ jobs:
       # Step 6: Install Sysdig CLI
       - name: Install Sysdig CLI
         run: |
-          curl -s -o /usr/local/bin/scanner-cli https://download.sysdig.com/stable/cli/scanner-cli
-          chmod +x /usr/local/bin/scanner-cli
+          curl -LO "https://download.sysdig.com/scanning/bin/sysdig-cli-scanner/$(curl -L -s https://download.sysdig.com/scanning/sysdig-cli-scanner/latest_version.txt)/linux/amd64/sysdig-cli-scanner"
+          chmod +x ./sysdig-cli-scanner
       
       # Step 7: Pull Docker image
       - name: Pull Docker image
