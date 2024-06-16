@@ -43,19 +43,20 @@ jobs:
           curl -LO "https://download.sysdig.com/scanning/bin/sysdig-cli-scanner/$(curl -L -s https://download.sysdig.com/scanning/sysdig-cli-scanner/latest_version.txt)/linux/amd64/sysdig-cli-scanner"
           chmod +x ./sysdig-cli-scanner
       
-      # Step 7: Pull Docker image
+      # Step 7: Pull Docker images in parallel
       - name: Pull Docker image
         run: |
-          docker pull dockersamples/examplevotingapp_vote:latest
-          docker pull dockersamples/examplevotingapp_worker:latest
-          docker pull dockersamples/examplevotingapp_result:latest
+          docker pull dockersamples/examplevotingapp_vote:latest &
+          docker pull dockersamples/examplevotingapp_worker:latest &
+          docker pull dockersamples/examplevotingapp_result:latest &
+          wait
 
       # Step 8: Scan Docker image with Sysdig
       - name: Scan Docker image with Sysdig
         run: |
-          SECURE_API_TOKEN=cc1ee15e-0fd8-41d3-8829-37e3c881b2e3 ./sysdig-cli-scanner --apiurl https://app.us4.sysdig.com pull://dockersamples/examplevotingapp_vote:latest || true
-          SECURE_API_TOKEN=cc1ee15e-0fd8-41d3-8829-37e3c881b2e3 ./sysdig-cli-scanner --apiurl https://app.us4.sysdig.com pull://dockersamples/examplevotingapp_worker:latest || true
-          SECURE_API_TOKEN=cc1ee15e-0fd8-41d3-8829-37e3c881b2e3 ./sysdig-cli-scanner --apiurl https://app.us4.sysdig.com pull://dockersamples/examplevotingapp_result:latest || true
+          SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_vote:latest || true
+          SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_worker:latest || true
+          SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_result:latest || true
 
       # Step 9: Deploy the resources defined in the Kubernetes manifest files (Commented out)
       # - name: Deploy Resources to AKS
