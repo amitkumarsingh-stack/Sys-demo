@@ -5,6 +5,13 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:  # Manually trigger workflow from GitHub UI
+    inputs:
+      deploy-to-aks:
+        description: 'Deploy resources to AKS'
+        required: true
+        default: 'false'
+        # Add other inputs as needed for manual approvals
 
 jobs:
   setup-and-deploy:
@@ -63,9 +70,10 @@ jobs:
           SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_worker:latest || true
           SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_result:latest || true
 
-      # Step 9: Deploy the resources defined in the Kubernetes manifest files (Commented out)
-      # - name: Deploy Resources to AKS
-      #   run: kubectl apply -f k8s-specifications/
+      # Step 9: Deploy the resources defined in the Kubernetes manifest files (Conditionally)
+      - name: Deploy Resources to AKS
+        if: github.event.inputs.deploy-to-aks == 'true'
+        run: kubectl apply -f k8s-specifications/
 
   promote-to-production:
     needs: scan-and-deploy
@@ -77,3 +85,19 @@ jobs:
         run: |
           # Example: Switch traffic or perform post-deployment tasks
           echo "Promoting to production..."
+
+# Workflow level approval
+permissions:
+  actions: write
+  checks: write
+  contents: read
+  deployments: write
+  issues: write
+  metadata: write
+  packages: write
+  pull-requests: write
+  repository_projects: write
+  secrets: write
+  security_events: write
+  self: write
+  vulnerability_alerts: write
