@@ -37,6 +37,18 @@ jobs:
       - name: List AKS Nodes
         run: kubectl get nodes
 
+    - name: Install Sysdig CLI
+      run: |
+        curl -s -o /usr/local/bin/scanner-cli https://download.sysdig.com/stable/cli/scanner-cli
+        chmod +x /usr/local/bin/scanner-cli
+      
+    - name: Pull Docker image
+      run: docker pull dockersamples/examplevotingapp_vote:latest
+
+    - name: Scan Docker image with Sysdig
+      run: |
+        scanner-cli scan --apiurl ${{ secrets.SYSDIG_ENDPOINT }} --token ${{ secrets.SYSDIG_API_TOKEN }} dockersamples/examplevotingapp_vote:latest
+
       # # Step 6: Deploy the resources defined in the Kubernetes manifest files
       # - name: Deploy Resources to AKS
       #   run: kubectl apply -f k8s-specifications/
