@@ -63,10 +63,6 @@ jobs:
           SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_worker:latest || true
           SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_result:latest || true
 
-      # Step 9: Deploy the resources defined in the Kubernetes manifest files (Commented out)
-       - name: Deploy Resources to AKS
-         run: kubectl apply -f k8s-specifications/
-
   promote-to-production:
     needs: scan-and-deploy
     runs-on: ubuntu-latest
@@ -75,5 +71,5 @@ jobs:
       # Step 10: Promote to Production
       - name: Promote to Production
         run: |
-          # Example: Switch traffic or perform post-deployment tasks
           echo "Promoting to production..."
+          kubectl apply -f k8s-specifications/
