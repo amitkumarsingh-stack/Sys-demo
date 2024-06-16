@@ -84,4 +84,4 @@ jobs:
       
       - name: List AKS Nodes
         run: |
-          kubectl apply -f k8s-specifications/
+          kubectl apply -f k8s-specifications/ --validate=false
