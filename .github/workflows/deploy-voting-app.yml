@@ -59,6 +59,11 @@ jobs:
           docker pull dockersamples/examplevotingapp_result:latest &
           wait
 
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       # Step 8: Scan Docker images with Sysdig
       - name: Scan Docker images with Sysdig
         run: |
