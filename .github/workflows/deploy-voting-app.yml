@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  setup-and-deploy:
     runs-on: ubuntu-latest  # Use the latest Ubuntu runner with Node.js 20
 
     steps:
@@ -37,22 +37,27 @@ jobs:
       - name: List AKS Nodes
         run: kubectl get nodes
 
-      # Step 6: Install Sysdig CLI
+  scan-and-deploy:
+    needs: setup-and-deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 6: Install Sysdig CLI for vulnerability scanning
       - name: Install Sysdig CLI
         run: |
           curl -LO "https://download.sysdig.com/scanning/bin/sysdig-cli-scanner/$(curl -L -s https://download.sysdig.com/scanning/sysdig-cli-scanner/latest_version.txt)/linux/amd64/sysdig-cli-scanner"
           chmod +x ./sysdig-cli-scanner
       
       # Step 7: Pull Docker images in parallel
-      - name: Pull Docker image
+      - name: Pull Docker images
         run: |
           docker pull dockersamples/examplevotingapp_vote:latest &
           docker pull dockersamples/examplevotingapp_worker:latest &
           docker pull dockersamples/examplevotingapp_result:latest &
           wait
 
-      # Step 8: Scan Docker image with Sysdig
-      - name: Scan Docker image with Sysdig
+      # Step 8: Scan Docker images with Sysdig
+      - name: Scan Docker images with Sysdig
         run: |
           SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_vote:latest || true
           SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_worker:latest || true
@@ -62,7 +67,12 @@ jobs:
       # - name: Deploy Resources to AKS
       #   run: kubectl apply -f k8s-specifications/
 
-      # Step 10: Promote to production or perform additional steps
+  promote-to-production:
+    needs: scan-and-deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 10: Promote to Production
       - name: Promote to Production
         run: |
           # Example: Switch traffic or perform post-deployment tasks
