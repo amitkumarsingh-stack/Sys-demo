@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Deploy to AKS'
+        required: true
+        default: 'deploy'
 
 jobs:
   setup-and-deploy:
@@ -62,15 +68,6 @@ jobs:
       - name: Promote to Production
         run: |
           echo "Promoting to production..."
-
-# Define the workflow dispatch event for manual approval
-on:
-  workflow_dispatch:
-    inputs:
-      action:
-        description: 'Deploy to AKS'
-        required: true
-        default: 'deploy'
 
 # Manual approval job
 jobs:
