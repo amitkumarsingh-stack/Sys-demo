@@ -86,17 +86,3 @@ jobs:
           # Example: Switch traffic or perform post-deployment tasks
           echo "Promoting to production..."
 
-# Workflow level approval
-permissions:
-  actions: write
-  checks: write
-  contents: read
-  deployments: write
-  issues: write
-  metadata: write
-  packages: write
-  pull-requests: write
-  secrets: write
-  security_events: write
-  self: write
-  vulnerability_alerts: write
