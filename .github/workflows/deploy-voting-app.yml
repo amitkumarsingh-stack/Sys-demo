@@ -65,7 +65,7 @@ jobs:
           SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_result:latest || true
 
   promote-to-production:
-    needs: scan-and-deploy
+    needs: scan-images
     runs-on: ubuntu-latest
 
     steps:
