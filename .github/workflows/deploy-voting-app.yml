@@ -1,18 +1,12 @@
 name: Azure Example Workflow
 
-# This workflow triggers on every push to the main branch
+# Trigger the workflow on every push to the main branch
 on:
   push:
     branches:
       - main
-  workflow_dispatch:  # Manually trigger workflow from GitHub UI
-    inputs:
-      deploy-to-aks:
-        description: 'Deploy resources to AKS'
-        required: true
-        default: 'false'
-        # Add other inputs as needed for manual approvals
 
+# Define jobs for the workflow
 jobs:
   setup-and-deploy:
     runs-on: ubuntu-latest  # Use the latest Ubuntu runner with Node.js 20
@@ -70,10 +64,11 @@ jobs:
           SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_worker:latest || true
           SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_result:latest || true
 
-      # Step 9: Deploy the resources defined in the Kubernetes manifest files (Conditionally)
-      - name: Deploy Resources to AKS
-        if: github.event.inputs.deploy-to-aks == 'true'
-        run: kubectl apply -f k8s-specifications/
+      # # Step 9: Deploy the resources defined in the Kubernetes manifest files
+      # - name: Deploy Resources to AKS
+      #   id: deploy-aks
+      #   run: kubectl apply -f k8s-specifications/
+      #   # Note: You should uncomment and adjust k8s-specifications/ to match your actual directory structure and files
 
   promote-to-production:
     needs: scan-and-deploy
@@ -86,3 +81,37 @@ jobs:
           # Example: Switch traffic or perform post-deployment tasks
           echo "Promoting to production..."
 
+# Define the workflow dispatch event for manual approval
+# This allows manual triggering of the workflow
+# Replace `<workflow_dispatch>` with the actual event payload if needed
+# e.g., `{ "action": "deploy" }`
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Deploy to AKS'
+        required: true
+        default: 'deploy'
+
+# Add a separate job for manual approval
+# This job will be triggered when the workflow_dispatch event is used
+jobs:
+  manual-approval:
+    if: github.event.inputs.action == 'deploy'
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 11: Manual approval step
+      - name: Manual Approval
+        uses: wei/github-approval-action@v2
+        with:
+          number: 1
+          workflow: ${{ github.workflow }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Step 12: Proceed with deployment after approval
+      - name: Deploy Resources to AKS (After Approval)
+        if: success() && github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'deploy'
+        run: |
+          echo "Approved! Deploying resources to AKS..."
+          kubectl apply -f k8s-specifications/
