@@ -37,7 +37,7 @@ jobs:
       - name: List AKS Nodes
         run: |
           kubectl get nodes
-          kubectl delete -f k8s-specifications/
+#          kubectl delete -f k8s-specifications/
           
   scan-and-deploy:
     needs: setup-and-deploy
