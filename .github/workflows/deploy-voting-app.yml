@@ -15,7 +15,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  
+          fetch-depth: 0
 
       # Step 2: Log in to Azure using the service principal credentials stored in GitHub secrets
       - name: Azure Login
@@ -37,23 +37,26 @@ jobs:
       - name: List AKS Nodes
         run: kubectl get nodes
 
-    - name: Install Sysdig CLI
-      run: |
-        curl -s -o /usr/local/bin/scanner-cli https://download.sysdig.com/stable/cli/scanner-cli
-        chmod +x /usr/local/bin/scanner-cli
+      # Step 6: Install Sysdig CLI
+      - name: Install Sysdig CLI
+        run: |
+          curl -s -o /usr/local/bin/scanner-cli https://download.sysdig.com/stable/cli/scanner-cli
+          chmod +x /usr/local/bin/scanner-cli
       
-    - name: Pull Docker image
-      run: docker pull dockersamples/examplevotingapp_vote:latest
+      # Step 7: Pull Docker image
+      - name: Pull Docker image
+        run: docker pull dockersamples/examplevotingapp_vote:latest
 
-    - name: Scan Docker image with Sysdig
-      run: |
-        scanner-cli scan --apiurl ${{ secrets.SYSDIG_ENDPOINT }} --token ${{ secrets.SYSDIG_API_TOKEN }} dockersamples/examplevotingapp_vote:latest
+      # Step 8: Scan Docker image with Sysdig
+      - name: Scan Docker image with Sysdig
+        run: |
+          scanner-cli scan --apiurl ${{ secrets.SYSDIG_ENDPOINT }} --token ${{ secrets.SYSDIG_API_TOKEN }} dockersamples/examplevotingapp_vote:latest
 
-      # # Step 6: Deploy the resources defined in the Kubernetes manifest files
+      # Step 9: Deploy the resources defined in the Kubernetes manifest files (Commented out)
       # - name: Deploy Resources to AKS
       #   run: kubectl apply -f k8s-specifications/
 
-      # Step 7: Promote to production or perform additional steps
+      # Step 10: Promote to production or perform additional steps
       - name: Promote to Production
         run: |
           # Example: Switch traffic or perform post-deployment tasks
