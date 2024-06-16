@@ -50,7 +50,8 @@ jobs:
       # Step 8: Scan Docker image with Sysdig
       - name: Scan Docker image with Sysdig
         run: |
-          scanner-cli scan --apiurl ${{ secrets.SYSDIG_ENDPOINT }} --token ${{ secrets.SYSDIG_API_TOKEN }} dockersamples/examplevotingapp_vote:latest
+#          scanner-cli scan --apiurl ${{ secrets.SYSDIG_ENDPOINT }} --token ${{ secrets.SYSDIG_API_TOKEN }} dockersamples/examplevotingapp_vote:latest
+          SECURE_API_TOKEN=cc1ee15e-0fd8-41d3-8829-37e3c881b2e3 ./sysdig-cli-scanner --apiurl https://app.us4.sysdig.com pull://alpine
 
       # Step 9: Deploy the resources defined in the Kubernetes manifest files (Commented out)
       # - name: Deploy Resources to AKS
