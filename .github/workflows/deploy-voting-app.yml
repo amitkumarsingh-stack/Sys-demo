@@ -79,6 +79,8 @@ jobs:
       - name: Promote to Production
         run: |
           echo "Promoting to production..."
+          pwd
+          ls -al
       
       - name: List AKS Nodes
         run: |
