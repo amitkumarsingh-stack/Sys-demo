@@ -65,6 +65,7 @@ jobs:
 
       - name: Deploy to AKS
         run: |
+          la -al
           kubectl apply -f k8s-specifications/
 
   promote-to-production:
