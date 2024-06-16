@@ -1,39 +1,39 @@
 name: Azure Example Workflow
 
+# This workflow triggers on every push to the main branch
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
-    inputs:
-      action:
-        description: 'Deploy to AKS'
-        required: true
-        default: 'deploy'
 
 jobs:
   setup-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner with Node.js 20
 
     steps:
+      # Step 1: Checkout the repository code
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # Step 2: Log in to Azure using the service principal credentials stored in GitHub secrets
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CRED }}
 
+      # Step 3: Set up kubectl to interact with the Kubernetes cluster
       - name: Setup kubectl
         uses: azure/setup-kubectl@v1
         with:
           version: 'latest'
 
+      # Step 4: Retrieve AKS credentials to configure kubectl
       - name: Retrieve AKS Credentials
         run: az aks get-credentials --resource-group Sysdig-RG --name sysdig-demo
 
+      # Step 5: List the nodes in the AKS cluster to verify the connection
       - name: List AKS Nodes
         run: kubectl get nodes
 
@@ -42,11 +42,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 6: Install Sysdig CLI for vulnerability scanning
       - name: Install Sysdig CLI
         run: |
           curl -LO "https://download.sysdig.com/scanning/bin/sysdig-cli-scanner/$(curl -L -s https://download.sysdig.com/scanning/sysdig-cli-scanner/latest_version.txt)/linux/amd64/sysdig-cli-scanner"
           chmod +x ./sysdig-cli-scanner
       
+      # Step 7: Pull Docker images in parallel
       - name: Pull Docker images
         run: |
           docker pull dockersamples/examplevotingapp_vote:latest &
@@ -54,36 +56,24 @@ jobs:
           docker pull dockersamples/examplevotingapp_result:latest &
           wait
 
+      # Step 8: Scan Docker images with Sysdig
       - name: Scan Docker images with Sysdig
         run: |
           SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_vote:latest || true
           SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_worker:latest || true
           SECURE_API_TOKEN=${{ secrets.SYSDIG_API_TOKEN }} ./sysdig-cli-scanner --apiurl ${{ secrets.SYSDIG_ENDPOINT }} pull://dockersamples/examplevotingapp_result:latest || true
 
+      # Step 9: Deploy the resources defined in the Kubernetes manifest files (Commented out)
+       - name: Deploy Resources to AKS
+         run: kubectl apply -f k8s-specifications/
+
   promote-to-production:
     needs: scan-and-deploy
     runs-on: ubuntu-latest
 
     steps:
+      # Step 10: Promote to Production
       - name: Promote to Production
         run: |
+          # Example: Switch traffic or perform post-deployment tasks
           echo "Promoting to production..."
-
-# Manual approval job
-  manual-approval:
-    if: github.event.inputs.action == 'deploy'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Manual Approval
-        uses: wei/github-approval-action@v2
-        with:
-          number: 1
-          workflow: ${{ github.workflow }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Deploy Resources to AKS (After Approval)
-        if: success() && github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'deploy'
-        run: |
-          echo "Approved! Deploying resources to AKS..."
-          kubectl apply -f k8s-specifications/
