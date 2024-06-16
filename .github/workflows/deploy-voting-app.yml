@@ -70,7 +70,6 @@ jobs:
           echo "Promoting to production..."
 
 # Manual approval job
-jobs:
   manual-approval:
     if: github.event.inputs.action == 'deploy'
     runs-on: ubuntu-latest
