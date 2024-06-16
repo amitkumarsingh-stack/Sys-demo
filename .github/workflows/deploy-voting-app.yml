@@ -1,4 +1,4 @@
-name: Azure Example Workflow
+name: Sample Voting App
 
 # This workflow triggers on every push to the main branch
 on:
@@ -37,7 +37,6 @@ jobs:
       - name: List AKS Nodes
         run: |
           kubectl get nodes
-#          kubectl delete -f k8s-specifications/
           
   scan-and-deploy:
     needs: setup-and-deploy
@@ -97,6 +96,6 @@ jobs:
       - name: Retrieve AKS Credentials
         run: az aks get-credentials --resource-group Sysdig-RG --name sysdig-demo
 
-      - name: List AKS Nodes
+      - name: Deploy application to AKS
         run: |
-          kubectl apply -f k8s-specifications/ --validate=false
+          kubectl delete -f k8s-specifications/ --validate=false
