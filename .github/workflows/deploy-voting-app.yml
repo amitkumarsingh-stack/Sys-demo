@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  setup-Env:
+  setup-env:
     runs-on: ubuntu-latest  # Use the latest Ubuntu runner with Node.js 20
 
     steps:
@@ -39,7 +39,7 @@ jobs:
           kubectl get nodes
           
   scan-images:
-    needs: setup-and-deploy
+    needs: setup-env
     runs-on: ubuntu-latest
 
     steps:
@@ -98,4 +98,4 @@ jobs:
 
       - name: Deploy application to AKS
         run: |
-          kubectl delete -f k8s-specifications/
+          kubectl delete -f k8s-specifications/ --validate=false
