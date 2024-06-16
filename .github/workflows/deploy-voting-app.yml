@@ -96,7 +96,6 @@ permissions:
   metadata: write
   packages: write
   pull-requests: write
-  repository_projects: write
   secrets: write
   security_events: write
   self: write
