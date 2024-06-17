@@ -23,6 +23,8 @@ spec:
         volumeMounts:
         - mountPath: /data
           name: redis-data
+        securityContext:
+          readOnlyRootFilesystem: true
       volumes:
       - name: redis-data
-        emptyDir: {} 
+        emptyDir: {}
