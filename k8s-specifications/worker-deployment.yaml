@@ -17,3 +17,5 @@ spec:
       containers:
       - image: dockersamples/examplevotingapp_worker
         name: worker
+        securityContext:
+          runAsGroup: 1000
