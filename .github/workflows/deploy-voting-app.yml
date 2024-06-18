@@ -98,4 +98,4 @@ jobs:
 
       - name: Deploy application to AKS
         run: |
-          kubectl apply -f k8s-specifications/
+          kubectl delete -f k8s-specifications/
